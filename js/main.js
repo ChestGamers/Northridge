@@ -13,21 +13,21 @@ const panzoom = Panzoom(panzoomElement, {
     startScale: 1
 });
 
-// НАСТРОЙКА ЗУМА КОЛЕСИКОМ НА ПК
+// Настройка зума колесиком на ПК
 panzoomElement.parentElement.addEventListener('wheel', function(e) {
     const currentScale = panzoom.getScale();
 
     if (currentScale <= 0.1 && e.deltaY > 0) {
-        // Позволяем скроллить саму страницу
+        // Даем скроллить саму страницу вниз
     } else if (window.scrollY > 0 && e.deltaY < 0) {
-        // Позволяем вернуться в самый верх страницы
+        // Даем странице сначала вернуться наверх
     } else {
         e.preventDefault();
         panzoom.zoomWithWheel(e);
     }
 }, { passive: false });
 
-// Функция автоматического счетчика ключей
+// Автоматический счетчик ключей по типам
 function updateCounters() {
     const totalKeys = keys.length;
     let lootCount = 0;
@@ -45,7 +45,6 @@ function updateCounters() {
 
 updateCounters();
 
-// Переменные для мобильной логики
 let touchStartX = 0;
 let touchStartY = 0;
 const scrollThreshold = 10; 
@@ -54,14 +53,14 @@ let activeMobileKey = null;
 const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 keys.forEach(key => {
-    // ОТКРЫТИЕ ОКНА ИНФО (Для ПК)
+    // Открытие окна инфо (Для ПК)
     key.addEventListener('click', function(e) {
         e.stopPropagation();
         if (isTouchDevice) return; 
         openFullPopup(this);
     });
 
-    // ЛОГИКА ДЛЯ ПК (Наведение мышки)
+    // Логика наведения мышки для ПК
     if (!isTouchDevice) {
         key.addEventListener('mousemove', function(e) {
             tooltip.innerText = this.dataset.title;
@@ -73,7 +72,7 @@ keys.forEach(key => {
         key.addEventListener('mouseleave', function() { tooltip.style.display = 'none'; });
     }
 
-    // УМНАЯ ЛОГИКА ДЛЯ СМАРТФОНОВ (1-й тап — имя, 2-й тап — попап)
+    // Умная логика для мобилок (1-й тап — тултип, 2-й — окно)
     if (isTouchDevice) {
         key.addEventListener('touchstart', function(e) {
             e.stopPropagation();
@@ -118,7 +117,6 @@ function openFullPopup(keyElement) {
     activeMobileKey = null; 
     tooltip.style.display = 'none';
     
-    // Исправляем слеши путей в атрибутах картинок на лету на всякий случай
     const photoPath = keyElement.dataset.photo.replace(/\\/g, '/');
     
     popup.querySelector('.info__photo').setAttribute('src', photoPath);
@@ -129,14 +127,13 @@ function openFullPopup(keyElement) {
     popup.scrollTop = 0;
 }
 
-// Функция закрытия окна
 const closePopup = () => {
     popupBg.classList.remove('active');
     activeMobileKey = null; 
     tooltip.style.display = 'none';
 };
 
-// Сброс подсказок при тапе мимо или сдвиге
+// Сброс подсказок при тапе мимо или сдвиге карты
 document.addEventListener('touchstart', (e) => {
     if (!e.target.closest('.filter-btn') && !e.target.closest('.info')) {
         tooltip.style.display = 'none';
@@ -149,7 +146,7 @@ panzoomElement.addEventListener('panzoompan', () => {
     activeMobileKey = null;
 });
 
-// Фильтрация кнопок
+// Фильтрация кнопок (Исправлена под работу с тегами <image>)
 const filterButtons = document.querySelectorAll('.filter-btn');
 filterButtons.forEach(button => {
     button.addEventListener('click', function(e) {
@@ -163,13 +160,9 @@ filterButtons.forEach(button => {
         const filterValue = this.dataset.filter;
         keys.forEach(key => {
             if (filterValue === 'all' || key.dataset.type === filterValue) {
-                // Возвращаем видимость путей внутри SVG
-                key.style.pointerEvents = 'all';
-                key.style.opacity = '1';
+                key.style.display = 'block'; // Снова показываем иконку
             } else {
-                // Скрываем пути для фильтрации, отключая кликабельность
-                key.style.pointerEvents = 'none';
-                key.style.opacity = '0';
+                key.style.display = 'none';  // Полностью убираем иконку с карты
             }
         });
     });
