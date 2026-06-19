@@ -12,8 +12,6 @@ html, body {
 	background-color: #0b0b0b;
 	overflow-x: hidden;
 	overflow-y: auto;
-	
-	/* Блокирует стрелку обновления при свайпе вниз */
 	overscroll-behavior-y: contain; 
 	-webkit-overflow-scrolling: touch;
 }
@@ -25,10 +23,9 @@ img {
 	-webkit-user-drag: none;
 }
 
-/* ИСПРАВЛЕНО: Твой родной класс для обертки всей страницы карты */
 .Map_Northridge {
 	width: 100vw;
-	height: 100vh; /* Карта всегда занимает ровно один экран, как на ферме */
+	height: 100vh;
 	position: relative;
 	overflow: hidden;
 	cursor: grab;
@@ -39,7 +36,15 @@ img {
 	cursor: grabbing;
 }
 
-/* ИСПРАВЛЕНО: Твой родной класс контейнера карты. Ограничен оригинальным размером viewBox (9085px) */
+.map-wrapper {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .map-Northridge {
 	width: 100%;
 	max-width: 9085px;
@@ -60,37 +65,28 @@ img {
 	left: 0;
 	height: 100%;
 	width: 100%;
-	z-index: 2; /* SVG гарантированно поверх фоновой картинки */
+	z-index: 2;
 }
 
-/* ИСПРАВЛЕНО: Стили для твоих векторных путей <path>. 
-   По умолчанию делаем их невидимыми (прозрачными), но кликабельными, как на ферме */
-.map-Northridge svg path {
-	fill: rgba(255, 106, 0, 0.01);
-	pointer-events: all;
-}
-
-/* Настройка интерактивных точек (класса .key на твоих path) */
+/* Стилизация иконок-сейфов <image> в стиле Фермы */
 .key {
-	stroke: #ff6a00; /* Оранжевая неоновая обводка в стиле фермы */
-	stroke-width: 14px;
 	cursor: pointer;
 	pointer-events: all;
-	transition: all 0.2s ease;
-	filter: drop-shadow(0 0 4px rgba(255,106,0,0.6));
+	transition: filter 0.2s ease;
+	filter: drop-shadow(0 0 5px rgba(255,106,0,0.8));
 }
 
 .key:hover {
 	animation: highlightKey 1.5s linear infinite alternate;
 }
 
-/* Красивая пульсация при наведении, как на ферме */
+/* Эффект свечения для картинок-иконок */
 @keyframes highlightKey {
-	0% { stroke: #ffaa00; filter: drop-shadow(0 0 2px rgba(255,170,0,0.5)); }
-	100% { stroke: #ff3300; filter: drop-shadow(0 0 10px rgba(255,51,0,0.9)); }
+	0% { filter: drop-shadow(0 0 5px rgba(255,170,0,0.8)); }
+	100% { filter: drop-shadow(0 0 20px rgba(255,51,0,1)); }
 }
 
-/* Тултип (подсказка при наведении на ключ) */
+/* Тултип */
 .tooltip {
 	position: fixed;
 	left: 0;
@@ -109,7 +105,70 @@ img {
 	letter-spacing: 0.5px;
 }
 
-/* Окно информации (стильное темное меню под дизайн фермы) */
+/* Фильтры */
+.filters {
+	position: fixed;
+	top: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 8px;
+	z-index: 5;
+	background: rgba(18, 18, 18, 0.9);
+	padding: 6px 12px;
+	border-radius: 4px;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255,255,255,0.08);
+}
+
+.filter-btn {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	color: #999999;
+	padding: 8px 16px;
+	font-family: 'Montserrat', sans-serif;
+	font-weight: 600;
+	font-size: 13px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	border-radius: 2px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.filter-btn:hover { 
+	background: rgba(255, 255, 255, 0.08); 
+	color: #fff;
+	border-color: rgba(255, 255, 255, 0.3);
+}
+
+.filter-btn.active { 
+	background: rgba(255, 106, 0, 0.15); 
+	border-color: #ff6a00; 
+	color: #ffffff;
+	box-shadow: inset 0 0 10px rgba(255,106,0,0.2);
+}
+
+.count-badge {
+	background: rgba(255, 255, 255, 0.1);
+	color: #888888;
+	font-size: 11px;
+	font-weight: 700;
+	padding: 2px 6px;
+	border-radius: 2px;
+}
+
+.filter-btn.active .count-badge {
+	background: #ff6a00;
+	color: #000000;
+}
+
+/* Окно информации */
 .info__bg {
 	position: fixed;
 	top: 0;
@@ -187,8 +246,33 @@ img {
 	background: #1a1a1a;
 }
 
-/* МОБИЛЬНЫЙ АДАПТИВ ДЛЯ ИНФО-ОКНА */
+/* Мобильный адаптив */
 @media (max-width: 768px) {
+	.filters {
+		top: auto;
+		bottom: 16px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 90%; 
+		max-width: 340px; 
+		display: flex;
+		justify-content: center;
+		padding: 4px;
+		gap: 4px;
+		border-radius: 3px;
+	}
+
+	.filter-btn {
+		padding: 5px 8px; 
+		font-size: 10px; 
+		gap: 4px;
+	}
+
+	.count-badge {
+		font-size: 9px;
+		padding: 1px 4px;
+	}
+
 	.info {
 		width: 88%; 
 		max-width: 400px;
